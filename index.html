@@ -2,29 +2,27 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Табло: Карта-Новини-Вітання</title>
+    <title>Табло: Фікс Слайдів</title>
     <style>
-        body { margin: 0; padding: 0; background: #000; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        body { margin: 0; padding: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
         .slide { display: none; width: 100vw; height: 100vh; animation: fadeIn 1s; }
         .slide.active { display: block; }
-        
         iframe { width: 100%; height: 100%; border: none; background: #fff; }
-
         .text-slide { display: flex; flex-direction: column; height: 100vh; padding: 40px; box-sizing: border-box; background: radial-gradient(circle, #1a1a1a 0%, #000 100%); }
-        h1 { color: #ff4444; font-size: 4rem; margin: 0 0 20px 0; text-align: center; text-transform: uppercase; border-bottom: 5px solid #ff4444; letter-spacing: 5px; }
+        h1 { color: #ff4444; font-size: 4rem; margin: 0 0 20px 0; text-align: center; text-transform: uppercase; border-bottom: 5px solid #ff4444; }
         
-        /* Стиль Новин (Слайд 2) */
+        /* Новини */
         .scroll-container { flex-grow: 1; overflow: hidden; position: relative; width: 100%; }
         .scroll-content { position: absolute; width: 100%; font-size: 2.3rem; line-height: 1.4; white-space: pre-wrap; animation: scrollUp 35s linear infinite; color: #ddd; }
-        @keyframes scrollUp { from { top: 100%; } to { top: -180%; } }
-
-        /* Стиль Вітання (Слайд 3) */
+        
+        /* Вітання */
         .holiday-title { color: #ffd700; border-color: #ffd700; }
         .bday-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; padding: 40px; border: 10px double #ffd700; border-radius: 50px; background: rgba(255, 215, 0, 0.05); }
-        .bday-text { font-size: 3rem; line-height: 1.3; text-align: center; font-weight: bold; color: #fff; }
+        .bday-text { font-size: 2.8rem; line-height: 1.3; text-align: center; font-weight: bold; color: #fff; }
 
+        @keyframes scrollUp { from { top: 100%; } to { top: -180%; } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        #clock { position: absolute; top: 15px; right: 25px; font-size: 2rem; z-index: 100; background: rgba(0,0,0,0.7); padding: 5px 15px; border-radius: 10px; font-family: monospace; }
+        #clock { position: absolute; top: 15px; right: 25px; font-size: 2rem; z-index: 100; background: rgba(0,0,0,0.7); padding: 5px 15px; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -38,7 +36,7 @@
     <div class="slide text-slide" id="slide2">
         <h1>НОВИНИ</h1>
         <div class="scroll-container">
-            <div id="news-content" class="scroll-content">Завантаження новин...</div>
+            <div id="news-content" class="scroll-content">Завантаження новин з таблиці...</div>
         </div>
     </div>
 
@@ -54,22 +52,36 @@
 
         async function updateData() {
             try {
-                const response = await fetch(csvUrl + '&cache=' + new Date().getTime());
+                const response = await fetch(csvUrl + '&t=' + new Date().getTime());
                 const text = await response.text();
                 
-                // Спеціальний розбір CSV для Google Tables
-                const rows = text.split(/\r?\n/); // розбиваємо по рядках
-                if (rows.length > 0) {
-                    const columns = rows[0].match(/(".*?"|[^,]+)(?=\s*,|\s*$)/g);
-                    if (columns && columns.length >= 2) {
-                        let news = columns[0].replace(/^"|"$/g, '').replace(/""/g, '"');
-                        let holiday = columns[1].replace(/^"|"$/g, '').replace(/""/g, '"');
-                        
-                        document.getElementById('news-content').innerText = news;
-                        document.getElementById('holiday-content').innerText = holiday;
+                // Надійний спосіб розділити A1 та B1 для Google Таблиць
+                // Ми шукаємо першу кому, яка не знаходиться всередині лапок
+                let index = -1;
+                let inQuotes = false;
+                for (let i = 0; i < text.length; i++) {
+                    if (text[i] === '"') inQuotes = !inQuotes;
+                    if (text[i] === ',' && !inQuotes) {
+                        index = i;
+                        break;
                     }
                 }
-            } catch (e) { console.error("Помилка завантаження"); }
+
+                if (index !== -1) {
+                    let newsPart = text.substring(0, index).trim();
+                    let bdayPart = text.substring(index + 1).trim();
+
+                    // Очищаємо від зайвих лапок
+                    newsPart = newsPart.replace(/^"|"$/g, '').replace(/""/g, '"');
+                    bdayPart = bdayPart.replace(/^"|"$/g, '').replace(/""/g, '"');
+
+                    document.getElementById('news-content').innerText = newsPart;
+                    document.getElementById('holiday-content').innerText = bdayPart;
+                }
+            } catch (e) {
+                console.error("Помилка:", e);
+                document.getElementById('news-content').innerText = "Помилка зв'язку з таблицею";
+            }
         }
 
         let current = 1;
@@ -83,8 +95,7 @@
         setInterval(changeSlide, 30000);
         updateData();
         setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'});
         }, 1000);
     </script>
 </body>
