@@ -2,55 +2,115 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Інфо-Табло</title>
+    <title>Інфо-Табло (Повноекранні слайди)</title>
     <style>
-        body { margin: 0; padding: 0; background: #111; color: white; font-family: sans-serif; display: flex; height: 100vh; overflow: hidden; }
-        /* Ліва частина - Карта */
-        #map-container { width: 70%; height: 100%; border-right: 2px solid #444; }
+        body { margin: 0; padding: 0; background: #000; color: white; font-family: 'Segoe UI', Roboto, sans-serif; overflow: hidden; }
+        
+        .slide { 
+            display: none; 
+            width: 100vw; 
+            height: 100vh; 
+            animation: fadeIn 0.8s; 
+        }
+        .slide.active { display: block; }
+
+        /* Стиль для Карти (Слайд 1) */
         iframe { width: 100%; height: 100%; border: none; }
-        /* Права частина - Новини та ДН */
-        #info-panel { width: 30%; padding: 20px; display: flex; flex-direction: column; }
-        h2 { color: #ff4444; border-bottom: 1px solid #444; padding-bottom: 10px; }
-        .news-box { flex-grow: 1; font-size: 1.2rem; line-height: 1.5; color: #ddd; }
-        .birthdays { background: #222; padding: 15px; border-radius: 10px; margin-top: 20px; }
-        .birthdays h3 { margin-top: 0; color: #ffd700; }
-        .update-time { font-size: 0.8rem; color: #666; margin-top: 10px; text-align: right; }
+
+        /* Стиль для Текстових слайдів (2 та 3) */
+        .text-slide { 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            text-align: center; 
+            padding: 50px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
+        }
+
+        h1 { color: #ff4444; font-size: 5rem; margin-bottom: 30px; text-transform: uppercase; border-bottom: 5px solid #ff4444; padding-bottom: 20px; }
+        .content { font-size: 3.5rem; line-height: 1.4; color: #eee; max-width: 90%; }
+        
+        /* Особливий стиль для Днів народження */
+        .holiday-title { color: #ffd700; border-color: #ffd700; }
+        .bday-card { background: rgba(255, 215, 0, 0.1); border: 3px solid #ffd700; padding: 40px; border-radius: 30px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Індикатор та годинник */
+        .overlay { position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none; }
+        .dots { display: flex; gap: 15px; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 20px; }
+        .dot { width: 15px; height: 15px; background: #444; border-radius: 50%; }
+        .dot.active { background: #ff4444; }
+        #clock { position: absolute; right: 40px; font-size: 1.5rem; color: #888; background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="map-container">
-        <iframe src="https://alerts.in.ua/" allow="autoplay"></iframe>
+    <div class="slide active" id="slide1">
+        <iframe src="https://alerts.in.ua/"></iframe>
     </div>
 
-    <div id="info-panel">
-        <h2>НОВИНИ</h2>
-        <div class="news-box">
-            <p>• Сьогодні спокійно, працюємо за планом.</p>
-            <p>• На вечір очікується оновлення обладнання.</p>
-            <p>• Не забуваємо про каву!</p>
+    <div class="slide text-slide" id="slide2">
+        <h1>📢 НОВИНИ</h1>
+        <div class="content">
+            <p>• ЗСУ міцно тримають позиції</p>
+            <p>• Енергетика працює в штатному режимі</p>
+            <p>• Слава Україні!</p>
         </div>
+    </div>
 
-        <div class="birthdays">
-            <h3>Дні народження 🎂</h3>
-            <p>Сьогодні: Олександр (30 років)</p>
-            <p>Завтра: Марія Іванівна</p>
+    <div class="slide text-slide" id="slide3">
+        <h1 class="holiday-title">🎂 СВЯТА</h1>
+        <div class="content">
+            <div class="bday-card">
+                <p><strong>Сьогодні: Олександр</strong></p>
+                <p style="font-size: 2.5rem; color: #ffd700;">З ювілеєм! Бажаємо перемоги та здоров'я!</p>
+            </div>
         </div>
+    </div>
 
-        <div class="update-time" id="clock"></div>
+    <div class="overlay">
+        <div class="dots">
+            <div class="dot active" id="dot1"></div>
+            <div class="dot" id="dot2"></div>
+            <div class="dot" id="dot3"></div>
+        </div>
+        <div id="clock"></div>
     </div>
 
     <script>
-        // Годинник для контролю актуальності
+        let currentSlide = 1;
+        const totalSlides = 3;
+
+        function showSlide(n) {
+            for (let i = 1; i <= totalSlides; i++) {
+                document.getElementById('slide' + i).classList.remove('active');
+                document.getElementById('dot' + i).classList.remove('active');
+            }
+            document.getElementById('slide' + n).classList.add('active');
+            document.getElementById('dot' + n).classList.add('active');
+        }
+
+        function nextSlide() {
+            currentSlide++;
+            if (currentSlide > totalSlides) currentSlide = 1;
+            showSlide(currentSlide);
+        }
+
+        // Міняємо слайди кожні 30 секунд
+        setInterval(nextSlide, 30000);
+
+        // Годинник
         function updateClock() {
             const now = new Date();
-            document.getElementById('clock').innerText = "Оновлено: " + now.toLocaleTimeString();
+            document.getElementById('clock').innerText = now.toLocaleTimeString();
         }
         setInterval(updateClock, 1000);
         updateClock();
-        
-        // Автооновлення сторінки кожні 15 хвилин для карти
-        setTimeout(() => { location.reload(); }, 15 * 60 * 1000);
+
+        // Оновлювати сторінку раз на 2 години для стабільності
+        setTimeout(() => { location.reload(); }, 7200000);
     </script>
 </body>
 </html>
