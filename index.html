@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Інфо-Табло</title>
+    <style>
+        body { margin: 0; padding: 0; background: #111; color: white; font-family: sans-serif; display: flex; height: 100vh; overflow: hidden; }
+        /* Ліва частина - Карта */
+        #map-container { width: 70%; height: 100%; border-right: 2px solid #444; }
+        iframe { width: 100%; height: 100%; border: none; }
+        /* Права частина - Новини та ДН */
+        #info-panel { width: 30%; padding: 20px; display: flex; flex-direction: column; }
+        h2 { color: #ff4444; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .news-box { flex-grow: 1; font-size: 1.2rem; line-height: 1.5; color: #ddd; }
+        .birthdays { background: #222; padding: 15px; border-radius: 10px; margin-top: 20px; }
+        .birthdays h3 { margin-top: 0; color: #ffd700; }
+        .update-time { font-size: 0.8rem; color: #666; margin-top: 10px; text-align: right; }
+    </style>
+</head>
+<body>
+
+    <div id="map-container">
+        <iframe src="https://alerts.in.ua/" allow="autoplay"></iframe>
+    </div>
+
+    <div id="info-panel">
+        <h2>НОВИНИ</h2>
+        <div class="news-box">
+            <p>• Сьогодні спокійно, працюємо за планом.</p>
+            <p>• На вечір очікується оновлення обладнання.</p>
+            <p>• Не забуваємо про каву!</p>
+        </div>
+
+        <div class="birthdays">
+            <h3>Дні народження 🎂</h3>
+            <p>Сьогодні: Олександр (30 років)</p>
+            <p>Завтра: Марія Іванівна</p>
+        </div>
+
+        <div class="update-time" id="clock"></div>
+    </div>
+
+    <script>
+        // Годинник для контролю актуальності
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = "Оновлено: " + now.toLocaleTimeString();
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+        
+        // Автооновлення сторінки кожні 15 хвилин для карти
+        setTimeout(() => { location.reload(); }, 15 * 60 * 1000);
+    </script>
+</body>
+</html>
