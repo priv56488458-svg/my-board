@@ -2,39 +2,44 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Табло: Карта-Новини-Вітання</title>
+    <title>Табло: Фінальна версія</title>
     <style>
         body { margin: 0; padding: 0; background: #000; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-        .slide { display: none; width: 100vw; height: 100vh; }
+        .slide { display: none; width: 100vw; height: 100vh; position: relative; }
         .slide.active { display: flex; flex-direction: column; }
         
         iframe { width: 100%; height: 100%; border: none; background: #fff; }
 
-        /* Стиль Новин (Слайд 2) */
+        /* Слайд 2: Новини */
         .text-slide { padding: 40px; box-sizing: border-box; background: #000; text-align: center; }
         h1 { color: #ff4444; font-size: 3.5rem; margin: 0 0 20px 0; border-bottom: 4px solid #ff4444; text-transform: uppercase; }
         .content-box { flex-grow: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         #news-content { font-size: 1.8rem; line-height: 1.3; color: #eee; white-space: pre-wrap; text-align: left; width: 100%; }
 
-        /* Слайд 3: Вітання з картинкою на фоні */
+        /* Слайд 3: Вітання з твоїм фоном (БЕЗ РАМКИ) */
         #slide3 { 
-            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1584967918940-a7d51b064268?q=80&w=1920'); 
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('Flag-Ukraine-carbon-gold-frameimage-from-torange_biz-free-photobank.jfif'); 
             background-size: cover; 
             background-position: center;
             justify-content: center;
             align-items: center;
-            padding: 50px;
+            text-align: center;
         }
-        .bday-card {
-            background: rgba(0, 0, 0, 0.7); /* Напівпрозорий фон для читабельності тексту */
-            border: 5px solid #ffd700;
-            border-radius: 30px;
-            padding: 40px;
-            max-width: 80%;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        .bday-text-clean {
+            padding: 0 60px;
+            max-width: 85%;
+            font-size: 2.8rem;
+            line-height: 1.4;
+            font-weight: bold;
+            color: #fff;
+            /* Тінь для кращої читабельності на фоні прапора */
+            text-shadow: 2px 2px 8px rgba(0,0,0,1);
         }
-        #holiday-content { font-size: 2.5rem; line-height: 1.4; font-weight: bold; color: #fff; text-align: center; }
-        .holiday-header { color: #ffd700; font-size: 4rem; margin-bottom: 20px; text-transform: uppercase; }
+        .holiday-title-clean { 
+            position: absolute; top: 50px; color: #ffd700; font-size: 4rem; 
+            text-transform: uppercase; letter-spacing: 5px; font-weight: 900;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+        }
 
         #clock { position: absolute; top: 10px; right: 20px; font-size: 2rem; background: rgba(0,0,0,0.8); padding: 5px 15px; border-radius: 10px; z-index: 100; }
     </style>
@@ -50,15 +55,13 @@
     <div class="slide text-slide" id="slide2">
         <h1>НОВИНИ</h1>
         <div class="content-box">
-            <div id="news-content">Завантаження...</div>
+            <div id="news-content">Оновлення...</div>
         </div>
     </div>
 
     <div class="slide" id="slide3">
-        <div class="holiday-header">ВІТАННЯ</div>
-        <div class="bday-card">
-            <div id="holiday-content">Завантаження...</div>
-        </div>
+        <div class="holiday-title-clean">ВІТАННЯ</div>
+        <div id="holiday-content" class="bday-text-clean">Завантаження...</div>
     </div>
 
     <script>
