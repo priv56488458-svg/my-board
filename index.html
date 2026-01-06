@@ -2,24 +2,39 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Табло: Статичне</title>
+    <title>Табло: Карта-Новини-Вітання</title>
     <style>
-        body { margin: 0; padding: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
+        body { margin: 0; padding: 0; background: #000; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         .slide { display: none; width: 100vw; height: 100vh; }
         .slide.active { display: flex; flex-direction: column; }
         
         iframe { width: 100%; height: 100%; border: none; background: #fff; }
 
-        .text-slide { padding: 40px; box-sizing: border-box; background: #000; text-align: center; justify-content: flex-start; }
+        /* Стиль Новин (Слайд 2) */
+        .text-slide { padding: 40px; box-sizing: border-box; background: #000; text-align: center; }
         h1 { color: #ff4444; font-size: 3.5rem; margin: 0 0 20px 0; border-bottom: 4px solid #ff4444; text-transform: uppercase; }
-        
-        /* Статичні новини */
         .content-box { flex-grow: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         #news-content { font-size: 1.8rem; line-height: 1.3; color: #eee; white-space: pre-wrap; text-align: left; width: 100%; }
 
-        /* Вітання */
-        .holiday-title { color: #ffd700; border-color: #ffd700; }
-        #holiday-content { font-size: 2.5rem; line-height: 1.3; font-weight: bold; color: #fff; border: 8px double #ffd700; padding: 30px; border-radius: 30px; }
+        /* Слайд 3: Вітання з картинкою на фоні */
+        #slide3 { 
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1584967918940-a7d51b064268?q=80&w=1920'); 
+            background-size: cover; 
+            background-position: center;
+            justify-content: center;
+            align-items: center;
+            padding: 50px;
+        }
+        .bday-card {
+            background: rgba(0, 0, 0, 0.7); /* Напівпрозорий фон для читабельності тексту */
+            border: 5px solid #ffd700;
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 80%;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+        #holiday-content { font-size: 2.5rem; line-height: 1.4; font-weight: bold; color: #fff; text-align: center; }
+        .holiday-header { color: #ffd700; font-size: 4rem; margin-bottom: 20px; text-transform: uppercase; }
 
         #clock { position: absolute; top: 10px; right: 20px; font-size: 2rem; background: rgba(0,0,0,0.8); padding: 5px 15px; border-radius: 10px; z-index: 100; }
     </style>
@@ -39,9 +54,9 @@
         </div>
     </div>
 
-    <div class="slide text-slide" id="slide3">
-        <h1></h1>
-        <div class="content-box">
+    <div class="slide" id="slide3">
+        <div class="holiday-header">ВІТАННЯ</div>
+        <div class="bday-card">
             <div id="holiday-content">Завантаження...</div>
         </div>
     </div>
@@ -51,11 +66,9 @@
 
         async function updateData() {
             try {
-                // Додаємо випадкове число до посилання, щоб обійти кеш ТБ
                 const response = await fetch(csvUrl + '&nocache=' + Math.random());
                 const text = await response.text();
                 
-                // Розділяємо дані (шукаємо першу кому поза лапками)
                 let firstComma = -1;
                 let quotes = false;
                 for (let i = 0; i < text.length; i++) {
