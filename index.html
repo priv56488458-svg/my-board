@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Табло: Фінальна версія</title>
+    <title>Табло: Карта-Новини-Вітання</title>
     <style>
         body { margin: 0; padding: 0; background: #000; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         .slide { display: none; width: 100vw; height: 100vh; position: relative; }
@@ -16,29 +16,23 @@
         .content-box { flex-grow: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         #news-content { font-size: 1.8rem; line-height: 1.3; color: #eee; white-space: pre-wrap; text-align: left; width: 100%; }
 
-        /* Слайд 3: Вітання з твоїм фоном (БЕЗ РАМКИ) */
+        /* Слайд 3: Вітання з твоїм фоном (БЕЗ ЗАГОЛОВКА І РАМКИ) */
         #slide3 { 
-            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('Flag-Ukraine-carbon-gold-frameimage-from-torange_biz-free-photobank.jfif'); 
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('Flag-Ukraine-carbon-gold-frameimage-from-torange_biz-free-photobank.jfif'); 
             background-size: cover; 
             background-position: center;
             justify-content: center;
             align-items: center;
             text-align: center;
         }
-        .bday-text-clean {
-            padding: 0 60px;
-            max-width: 85%;
-            font-size: 2.8rem;
+        .bday-text-centered {
+            padding: 40px 80px;
+            max-width: 90%;
+            font-size: 3.5rem; /* Збільшений шрифт, бо заголовок зник */
             line-height: 1.4;
             font-weight: bold;
             color: #fff;
-            /* Тінь для кращої читабельності на фоні прапора */
-            text-shadow: 2px 2px 8px rgba(0,0,0,1);
-        }
-        .holiday-title-clean { 
-            position: absolute; top: 50px; color: #ffd700; font-size: 4rem; 
-            text-transform: uppercase; letter-spacing: 5px; font-weight: 900;
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+            text-shadow: 3px 3px 12px rgba(0,0,0,1);
         }
 
         #clock { position: absolute; top: 10px; right: 20px; font-size: 2rem; background: rgba(0,0,0,0.8); padding: 5px 15px; border-radius: 10px; z-index: 100; }
@@ -55,53 +49,13 @@
     <div class="slide text-slide" id="slide2">
         <h1>НОВИНИ</h1>
         <div class="content-box">
-            <div id="news-content">Оновлення...</div>
+            <div id="news-content">Оновлення новин...</div>
         </div>
     </div>
 
     <div class="slide" id="slide3">
-        <div></div>
-        <div id="holiday-content" class="bday-text-clean">Завантаження...</div>
+        <div id="holiday-content" class="bday-text-centered">Завантаження привітання...</div>
     </div>
 
     <script>
-        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQEa4Dv6ZUnOjwEpd31r3LpfChJt2Eq6qenSjpq72x5L_Rdpl28ge7jyF_qi_p0p-CVbp7m7UIHSv24/pub?output=csv';
-
-        async function updateData() {
-            try {
-                const response = await fetch(csvUrl + '&nocache=' + Math.random());
-                const text = await response.text();
-                
-                let firstComma = -1;
-                let quotes = false;
-                for (let i = 0; i < text.length; i++) {
-                    if (text[i] === '"') quotes = !quotes;
-                    if (text[i] === ',' && !quotes) { firstComma = i; break; }
-                }
-
-                if (firstComma !== -1) {
-                    let news = text.substring(0, firstComma).replace(/^"|"$/g, '').replace(/""/g, '"').trim();
-                    let bday = text.substring(firstComma + 1).replace(/^"|"$/g, '').replace(/""/g, '"').trim();
-
-                    document.getElementById('news-content').innerText = news;
-                    document.getElementById('holiday-content').innerText = bday;
-                }
-            } catch (e) { console.error(e); }
-        }
-
-        let current = 1;
-        function changeSlide() {
-            document.getElementById('slide' + current).style.display = 'none';
-            current = (current >= 3) ? 1 : current + 1;
-            document.getElementById('slide' + current).style.display = 'flex';
-            if (current === 1) updateData();
-        }
-
-        setInterval(changeSlide, 30000);
-        updateData();
-        setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'});
-        }, 1000);
-    </script>
-</body>
-</html>
+        const csvUrl = '
