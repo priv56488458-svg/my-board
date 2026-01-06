@@ -2,34 +2,29 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Інфо-Табло: Новини та Вітання</title>
+    <title>Табло: Карта-Новини-Вітання</title>
     <style>
         body { margin: 0; padding: 0; background: #000; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         .slide { display: none; width: 100vw; height: 100vh; animation: fadeIn 1s; }
         .slide.active { display: block; }
         
-        /* Слайд 1: Карта */
         iframe { width: 100%; height: 100%; border: none; background: #fff; }
 
-        /* Загальний стиль для текстових слайдів */
         .text-slide { display: flex; flex-direction: column; height: 100vh; padding: 40px; box-sizing: border-box; background: radial-gradient(circle, #1a1a1a 0%, #000 100%); }
         h1 { color: #ff4444; font-size: 4rem; margin: 0 0 20px 0; text-align: center; text-transform: uppercase; border-bottom: 5px solid #ff4444; letter-spacing: 5px; }
         
-        /* Слайд 2: Новини з прокруткою */
+        /* Стиль Новин (Слайд 2) */
         .scroll-container { flex-grow: 1; overflow: hidden; position: relative; width: 100%; }
-        .scroll-content { position: absolute; width: 100%; font-size: 2.5rem; line-height: 1.5; white-space: pre-wrap; animation: scrollUp 28s linear infinite; color: #ddd; }
-        @keyframes scrollUp { from { top: 105%; } to { top: -150%; } }
+        .scroll-content { position: absolute; width: 100%; font-size: 2.3rem; line-height: 1.4; white-space: pre-wrap; animation: scrollUp 35s linear infinite; color: #ddd; }
+        @keyframes scrollUp { from { top: 100%; } to { top: -180%; } }
 
-        /* Слайд 3: Привітання */
+        /* Стиль Вітання (Слайд 3) */
         .holiday-title { color: #ffd700; border-color: #ffd700; }
-        .bday-container { 
-            flex-grow: 1; display: flex; justify-content: center; align-items: center; 
-            padding: 40px; border: 10px double #ffd700; border-radius: 50px; background: rgba(255, 215, 0, 0.05); 
-        }
-        .bday-text { font-size: 3rem; line-height: 1.3; text-align: center; font-weight: bold; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .bday-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; padding: 40px; border: 10px double #ffd700; border-radius: 50px; background: rgba(255, 215, 0, 0.05); }
+        .bday-text { font-size: 3rem; line-height: 1.3; text-align: center; font-weight: bold; color: #fff; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        #clock { position: absolute; top: 15px; right: 25px; font-size: 2.2rem; z-index: 100; background: rgba(0,0,0,0.7); padding: 5px 20px; border-radius: 12px; font-family: monospace; }
+        #clock { position: absolute; top: 15px; right: 25px; font-size: 2rem; z-index: 100; background: rgba(0,0,0,0.7); padding: 5px 15px; border-radius: 10px; font-family: monospace; }
     </style>
 </head>
 <body>
@@ -59,33 +54,34 @@
 
         async function updateData() {
             try {
-                const response = await fetch(csvUrl);
-                const data = await response.text();
-                // Коректний розбір CSV з урахуванням лапок та переносів рядків
-                const parts = data.match(/(".*?"|[^,]+)(?=\s*,|\s*$)/gs);
+                const response = await fetch(csvUrl + '&cache=' + new Date().getTime());
+                const text = await response.text();
                 
-                if (parts) {
-                    let news = parts[0].replace(/^"|"$/g, '').replace(/""/g, '"');
-                    let holiday = parts[1] ? parts[1].replace(/^"|"$/g, '').replace(/""/g, '"') : "";
-                    
-                    document.getElementById('news-content').innerText = news;
-                    document.getElementById('holiday-content').innerText = holiday;
+                // Спеціальний розбір CSV для Google Tables
+                const rows = text.split(/\r?\n/); // розбиваємо по рядках
+                if (rows.length > 0) {
+                    const columns = rows[0].match(/(".*?"|[^,]+)(?=\s*,|\s*$)/g);
+                    if (columns && columns.length >= 2) {
+                        let news = columns[0].replace(/^"|"$/g, '').replace(/""/g, '"');
+                        let holiday = columns[1].replace(/^"|"$/g, '').replace(/""/g, '"');
+                        
+                        document.getElementById('news-content').innerText = news;
+                        document.getElementById('holiday-content').innerText = holiday;
+                    }
                 }
-            } catch (e) { console.error("Помилка оновлення"); }
+            } catch (e) { console.error("Помилка завантаження"); }
         }
 
         let current = 1;
         function changeSlide() {
             document.getElementById('slide' + current).classList.remove('active');
-            current = current >= 3 ? 1 : current + 1;
+            current = (current >= 3) ? 1 : current + 1;
             document.getElementById('slide' + current).classList.add('active');
-            // Оновлюємо дані при кожному поверненні до карти, щоб ТБ завжди був актуальним
             if (current === 1) updateData();
         }
 
-        setInterval(changeSlide, 30000); // 30 секунд на слайд
+        setInterval(changeSlide, 30000);
         updateData();
-
         setInterval(() => {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'});
