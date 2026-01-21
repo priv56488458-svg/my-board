@@ -75,7 +75,7 @@
 </head>
 <body>
 
-    <audio id="memorial-audio" src="z_uk-metronoma.mp3" preload="auto"></audio>
+    <audio id="memorial-audio" src="Hvylyna.mp3" preload="auto"></audio>
 
     <div id="memorial-overlay">
         <h2>ЗАГАЛЬНОНАЦІОНАЛЬНА<br>ХВИЛИНА МОВЧАННЯ</h2>
@@ -146,22 +146,21 @@
             } catch (e) { console.error("CSV Error"); }
         }
 
-        // ЛОГІКА ХВИЛИНИ МОВЧАННЯ
         function checkMemorialTime(currentTimeStr) {
-            // Встановлено на 09:00:00 за київським часом
-            if (currentTimeStr === "20:56:15") {
+            // Запуск о 09:00:00
+            if (currentTimeStr === "21:20:18") {
                 const audio = document.getElementById('memorial-audio');
                 const overlay = document.getElementById('memorial-overlay');
                 
                 overlay.style.display = 'flex';
-                audio.play().catch(e => console.log("Autoplay blocked. Please click on screen once."));
+                audio.play().catch(e => console.log("Потрібен клік по екрану для активації звуку."));
 
-                // Закрити через 65 секунд
+                // Час оверлею змінено на 2 хвилини 49 секунд (169000 мс)
                 setTimeout(() => {
                     overlay.style.display = 'none';
                     audio.pause();
                     audio.currentTime = 0;
-                }, 65000);
+                }, 169000); 
             }
         }
 
@@ -206,7 +205,7 @@
         updateData();
         updateTimers();
 
-        // Перезавантаження сторінки раз на добу для очищення кешу ТВ
+        // Перезавантаження сторінки раз на добу
         setTimeout(() => { location.reload(); }, 86400000);
 
     </script>
