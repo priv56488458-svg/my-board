@@ -172,6 +172,8 @@
         setInterval(updateTimers, 1000);
         updateData();
         updateTimers();
+        // Перезавантажувати всю сторінку раз на 24 години для очищення пам'яті ТВ
+setTimeout(() => { location.reload(); }, 86400000);
 
     </script>
 </body>
