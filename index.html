@@ -32,7 +32,7 @@
             border-radius: 20px;
         }
 
-        /* ПРАВИЙ КУТ: Звичайний годинник */
+        /* ПРАВИЙ КУТ: Годинник */
         #clock { 
             position: absolute; top: 15px; right: 20px; font-size: 2.2rem; 
             background: rgba(0,0,0,0.8); padding: 8px 20px; border-radius: 10px; 
@@ -66,15 +66,21 @@
         }
         #memorial-overlay h2 { font-size: 4rem; color: #ff4444; text-transform: uppercase; margin: 0; }
         #memorial-overlay p { font-size: 2rem; margin-top: 20px; color: #ccc; }
+        .candle { font-size: 5rem; margin-top: 30px; animation: flicker 2s infinite; }
+        @keyframes flicker {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.95); }
+        }
     </style>
 </head>
 <body>
 
-    <audio id="memorial-audio" src="silence.mp3" preload="auto"></audio>
+    <audio id="memorial-audio" src="z_uk-metronoma.mp3" preload="auto"></audio>
 
     <div id="memorial-overlay">
         <h2>ЗАГАЛЬНОНАЦІОНАЛЬНА<br>ХВИЛИНА МОВЧАННЯ</h2>
         <p>Вшануймо пам'ять загиблих захисників України</p>
+        <div class="candle">🕯️</div>
     </div>
 
     <div id="war-timer-container">
@@ -104,7 +110,6 @@
     <script>
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQEa4Dv6ZUnOjwEpd31r3LpfChJt2Eq6qenSjpq72x5L_Rdpl28ge7jyF_qi_p0p-CVbp7m7UIHSv24/pub?output=csv';
 
-        // 1. ПАРСИНГ ТА ОНОВЛЕННЯ ДАНИХ
         function parseSmartCSV(text) {
             const result = [];
             let cell = '';
@@ -138,20 +143,20 @@
                     else if (news.length > 400) box.style.fontSize = "1.7rem";
                     else box.style.fontSize = "2.2rem";
                 }
-            } catch (e) { console.error("Помилка завантаження CSV"); }
+            } catch (e) { console.error("CSV Error"); }
         }
 
-        // 2. ЛОГІКА ХВИЛИНИ МОВЧАННЯ
+        // ЛОГІКА ХВИЛИНИ МОВЧАННЯ
         function checkMemorialTime(currentTimeStr) {
-            // Налаштований час: 09:00:00
-            if (currentTimeStr === "20:45:45") {
-                const audio = document.getElementById('z_uk-metronoma.mp3');
+            // Встановлено на 09:00:00 за київським часом
+            if (currentTimeStr === "20:56:15") {
+                const audio = document.getElementById('memorial-audio');
                 const overlay = document.getElementById('memorial-overlay');
                 
                 overlay.style.display = 'flex';
-                audio.play().catch(e => console.log("Потрібна взаємодія користувача для звуку"));
+                audio.play().catch(e => console.log("Autoplay blocked. Please click on screen once."));
 
-                // Закрити оверлей через 65 секунд
+                // Закрити через 65 секунд
                 setTimeout(() => {
                     overlay.style.display = 'none';
                     audio.pause();
@@ -160,13 +165,12 @@
             }
         }
 
-        // 3. ЛОГІКА ГОДИННИКІВ
         function updateTimers() {
             const now = new Date();
             const timeStr = now.toLocaleTimeString('uk-UA', {hour12: false});
             
             document.getElementById('clock').innerText = timeStr;
-            checkMemorialTime(timeStr); // Перевірка на 09:00
+            checkMemorialTime(timeStr);
 
             const startDate = new Date('2022-02-24T04:00:00');
             const diff = now - startDate;
@@ -181,7 +185,6 @@
             document.getElementById('t-val').innerText = `${pad(hours)}:${pad(mins)}:${pad(secs)}`;
         }
 
-        // 4. ПЕРЕМИКАННЯ СЛАЙДІВ
         let current = 1;
         function changeSlide() {
             const slides = document.querySelectorAll('.slide');
@@ -198,13 +201,12 @@
             if (current === 1) updateData();
         }
 
-        // Ініціалізація
         setInterval(changeSlide, 30000);
         setInterval(updateTimers, 1000);
         updateData();
         updateTimers();
 
-        // Очищення пам'яті ТВ раз на добу
+        // Перезавантаження сторінки раз на добу для очищення кешу ТВ
         setTimeout(() => { location.reload(); }, 86400000);
 
     </script>
