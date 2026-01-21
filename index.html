@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Інформаційне Табло</title>
+    <title>Інформаційне Табло: Фінальна Версія</title>
     <style>
         body { margin: 0; padding: 0; background: #000; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
         
@@ -56,9 +56,26 @@
             display: flex; gap: 5px;
         }
         .war-days { color: #ff4444; font-weight: 900; }
+
+        /* Оверлей для Хвилини мовчання */
+        #memorial-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; color: white; z-index: 9999;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center;
+        }
+        #memorial-overlay h2 { font-size: 4rem; color: #ff4444; text-transform: uppercase; margin: 0; }
+        #memorial-overlay p { font-size: 2rem; margin-top: 20px; color: #ccc; }
     </style>
 </head>
 <body>
+
+    <audio id="memorial-audio" src="silence.mp3" preload="auto"></audio>
+
+    <div id="memorial-overlay">
+        <h2>ЗАГАЛЬНОНАЦІОНАЛЬНА<br>ХВИЛИНА МОВЧАННЯ</h2>
+        <p>Вшануймо пам'ять загиблих захисників України</p>
+    </div>
 
     <div id="war-timer-container">
         <div class="timer-label">ТРИВАЄ ПОВНОМАСШТАБНА ВІЙНА:</div>
@@ -111,14 +128,11 @@
                 if (data.length >= 2) {
                     let news = data[0].replace(/""/g, '"').trim();
                     let bday = data[1].replace(/""/g, '"').trim();
-
-                    // Очищення вітання
                     bday = bday.split('\n').filter(line => line.trim() !== '' && line.trim() !== ',').join('\n');
 
                     document.getElementById('news-content').innerText = news;
                     document.getElementById('holiday-content').innerText = bday;
                     
-                    // Авто-корекція шрифту
                     const box = document.getElementById('news-content');
                     if (news.length > 600) box.style.fontSize = "1.4rem";
                     else if (news.length > 400) box.style.fontSize = "1.7rem";
@@ -127,14 +141,33 @@
             } catch (e) { console.error("Помилка завантаження CSV"); }
         }
 
-        // 2. ЛОГІКА ГОДИННИКІВ
+        // 2. ЛОГІКА ХВИЛИНИ МОВЧАННЯ
+        function checkMemorialTime(currentTimeStr) {
+            // Налаштований час: 09:00:00
+            if (currentTimeStr === "09:00:00") {
+                const audio = document.getElementById('memorial-audio');
+                const overlay = document.getElementById('memorial-overlay');
+                
+                overlay.style.display = 'flex';
+                audio.play().catch(e => console.log("Потрібна взаємодія користувача для звуку"));
+
+                // Закрити оверлей через 65 секунд
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    audio.pause();
+                    audio.currentTime = 0;
+                }, 65000);
+            }
+        }
+
+        // 3. ЛОГІКА ГОДИННИКІВ
         function updateTimers() {
             const now = new Date();
+            const timeStr = now.toLocaleTimeString('uk-UA', {hour12: false});
             
-            // Звичайний годинник
-            document.getElementById('clock').innerText = now.toLocaleTimeString('uk-UA');
+            document.getElementById('clock').innerText = timeStr;
+            checkMemorialTime(timeStr); // Перевірка на 09:00
 
-            // Хронометр війни
             const startDate = new Date('2022-02-24T04:00:00');
             const diff = now - startDate;
 
@@ -144,12 +177,11 @@
             const secs = Math.floor((diff / 1000) % 60);
 
             const pad = (n) => n.toString().padStart(2, '0');
-            
             document.getElementById('d-val').innerText = days;
             document.getElementById('t-val').innerText = `${pad(hours)}:${pad(mins)}:${pad(secs)}`;
         }
 
-        // 3. ПЕРЕМИКАННЯ СЛАЙДІВ
+        // 4. ПЕРЕМИКАННЯ СЛАЙДІВ
         let current = 1;
         function changeSlide() {
             const slides = document.querySelectorAll('.slide');
@@ -159,21 +191,21 @@
             });
 
             current = (current >= 3) ? 1 : current + 1;
-            
             const nextSlide = document.getElementById('slide' + current);
             nextSlide.style.display = (current === 1) ? 'block' : 'flex';
             setTimeout(() => { nextSlide.classList.add('active'); }, 50);
 
-            if (current === 1) updateData(); // Оновлюємо дані при кожному колі
+            if (current === 1) updateData();
         }
 
         // Ініціалізація
-        setInterval(changeSlide, 30000); // 30 секунд на слайд
+        setInterval(changeSlide, 30000);
         setInterval(updateTimers, 1000);
         updateData();
         updateTimers();
-        // Перезавантажувати всю сторінку раз на 24 години для очищення пам'яті ТВ
-setTimeout(() => { location.reload(); }, 86400000);
+
+        // Очищення пам'яті ТВ раз на добу
+        setTimeout(() => { location.reload(); }, 86400000);
 
     </script>
 </body>
